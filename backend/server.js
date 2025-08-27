@@ -39,6 +39,10 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [process.env.FRONTEND_URL, process.env.ADMIN_URL].filter(Boolean)
   : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:5174'];
 
+console.log('CORS Origins:', allowedOrigins);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' ? allowedOrigins : '*',
   credentials: false,
