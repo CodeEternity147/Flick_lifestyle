@@ -40,8 +40,8 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
-  credentials: process.env.NODE_ENV === 'production',
+  origin: process.env.NODE_ENV === 'production' ? allowedOrigins : '*',
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
@@ -54,7 +54,21 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'success', 
     message: 'Flick Lifestyle API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    mongodb: process.env.MONGODB_URI ? 'configured' : 'not configured'
+  });
+});
+
+// Test route for debugging
+app.get('/api/test', (req, res) => {
+  res.status(200).json({ 
+    message: 'API is working!',
+    routes: [
+      '/api/products/featured',
+      '/api/products/sale', 
+      '/api/categories'
+    ]
   });
 });
 
@@ -104,10 +118,16 @@ app.use(errorHandler);
 // Database connection
 const connectDB = async () => {
   try {
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI is not defined in environment variables');
+      process.exit(1);
+    }
+    
     const conn = await mongoose.connect(process.env.MONGODB_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error('Database connection error:', error);
+    console.error('Please check your MONGODB_URI environment variable');
     process.exit(1);
   }
 };
