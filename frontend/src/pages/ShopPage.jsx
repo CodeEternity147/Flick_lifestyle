@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { motion } from 'framer-motion';
 import { 
   Filter, 
@@ -14,7 +15,8 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  Gift
+  Gift,
+  Eye
 } from 'lucide-react';
 import { fetchProducts, fetchCategories, setFilters, clearFilters, setCurrentPage } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
@@ -22,6 +24,7 @@ import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice
 import toast from 'react-hot-toast';
 
 const ShopPage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -140,6 +143,13 @@ const ShopPage = () => {
     // Validate product ID
     if (!product._id) {
       toast.error('Invalid product data');
+      return;
+    }
+    
+    // Check if this is a bundle product that requires customization
+    if (product.hasBundleItems) {
+      toast.info('This product requires customization. Redirecting to product page...');
+      navigate(`/product/${product._id}`);
       return;
     }
     
@@ -279,27 +289,27 @@ const ShopPage = () => {
             </div>
           </div>
           
-          <div className="flex space-x-3">
-            <motion.button
-              onClick={() => handleAddToCart(product)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-purple-500/25"
-            >
-              <ShoppingCart size={18} className="mr-2" />
-              Add to Cart
-            </motion.button>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link
-                to={`/product/${product._id}`}
-                className="bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 py-3 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-gray-500/25"
-              >
-                <ArrowRight size={18} />
-              </Link>
-            </motion.div>
+          {/* Product Actions */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-2 w-full">
+              {product.hasBundleItems ? (
+                <Link
+                  to={`/product/${product._id}`}
+                  className="flex-1 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 hover:from-purple-700 hover:via-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:-translate-y-0.5"
+                >
+                  <Eye size={18} className="animate-pulse" />
+                  <span>View Product</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5"
+                >
+                  <ShoppingCart size={18} />
+                  <span>Add to Cart</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -410,27 +420,23 @@ const ShopPage = () => {
                 >
                   <Heart size={20} fill={isInWishlist(product._id) ? 'currentColor' : 'none'} />
                 </motion.button>
-                <motion.button
-                  onClick={() => handleAddToCart(product)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-purple-500/25"
-                >
-                  <ShoppingCart size={18} />
-                  <span>Add to Cart</span>
-                </motion.button>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                {product.hasBundleItems ? (
                   <Link
                     to={`/product/${product._id}`}
-                    className="bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-gray-500/25"
+                    className="flex-1 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 hover:from-purple-700 hover:via-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:-translate-y-0.5"
                   >
-                    <ArrowRight size={18} />
-                    <span>View Details</span>
+                    <Eye size={18} className="animate-pulse" />
+                    <span>View Product</span>
                   </Link>
-                </motion.div>
+                ) : (
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5"
+                  >
+                    <ShoppingCart size={18} />
+                    <span>Add to Cart</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

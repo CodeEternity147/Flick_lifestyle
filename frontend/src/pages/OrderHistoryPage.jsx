@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { Link } from 'react-router-dom';
 import { Package, Eye, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { fetchOrders } from '../store/slices/orderSlice';
 
 const OrderHistoryPage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { orders, loading, pagination } = useSelector((state) => state.orders);

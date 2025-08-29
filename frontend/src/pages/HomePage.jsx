@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Lottie from 'lottie-react';
@@ -10,7 +11,7 @@ import {
   ArrowRight, Star, ShoppingCart, Heart, Gift, Award, 
   Truck, Shield, Zap, Users, TrendingUp, Sparkles,
   Package, Clock, CheckCircle, Globe, Play, ArrowUpRight,
-  Sparkles as SparklesIcon, Zap as ZapIcon, Star as StarIcon
+  Sparkles as SparklesIcon, Zap as ZapIcon, Star as StarIcon, Eye
 } from 'lucide-react';
 import { fetchFeaturedProducts, fetchSaleProducts } from '../store/slices/productSlice';
 import { addToCart } from '../store/slices/cartSlice';
@@ -19,6 +20,7 @@ import CouponBanner from '../components/common/CouponBanner';
 import toast from 'react-hot-toast';
 
 const HomePage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { featuredProducts, saleProducts, loading, error } = useSelector((state) => state.products);
@@ -44,6 +46,13 @@ const HomePage = () => {
     
     if (!product._id) {
       toast.error('Invalid product data');
+      return;
+    }
+    
+    // Check if this is a bundle product that requires customization
+    if (product.hasBundleItems) {
+      toast.info('This product requires customization. Redirecting to product page...');
+      navigate(`/product/${product._id}`);
       return;
     }
     
@@ -196,23 +205,27 @@ const HomePage = () => {
             
            
             
-            <div className="grid grid-cols-2 gap-3">
-              <motion.button
-                onClick={() => handleAddToCart(product)}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ShoppingCart size={16} className="mr-2" />
-                Add to Cart
-              </motion.button>
-              <Link
-                to={`/product/${product._id}`}
-                className="bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl"
-              >
-                View Details
-                <ArrowUpRight size={16} className="ml-2" />
-              </Link>
+            {/* Product Actions */}
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center space-x-2 w-full">
+                {product.hasBundleItems ? (
+                  <Link
+                    to={`/product/${product._id}`}
+                    className="flex-1 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 hover:from-purple-700 hover:via-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:-translate-y-0.5"
+                  >
+                    <Eye size={18} className="animate-pulse" />
+                    <span>View Product</span>
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5"
+                  >
+                    <ShoppingCart size={18} />
+                    <span>Add to Cart</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { 
   Users, 
   Award, 
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 
 const AboutPage = () => {
+  useScrollToTop();
   const stats = [
     { icon: Users, number: '50,000+', label: 'Happy Customers', color: 'text-blue-600 bg-gradient-to-br from-blue-100 to-indigo-100' },
     { icon: Package, number: '1,000+', label: 'Premium Products', color: 'text-purple-600 bg-gradient-to-br from-purple-100 to-pink-100' },

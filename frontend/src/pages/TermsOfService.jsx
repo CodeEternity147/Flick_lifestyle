@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { FileText, Scale, AlertTriangle, CheckCircle, XCircle, Clock, Users, Mail, Phone } from 'lucide-react';
+import useScrollToTop from '../hooks/useScrollToTop';
 
 const TermsOfService = () => {
+  useScrollToTop();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

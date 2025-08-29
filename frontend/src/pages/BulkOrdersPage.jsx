@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { motion } from 'framer-motion';
 import { 
   Package, 
@@ -21,6 +22,7 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 
 const BulkOrdersPage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);

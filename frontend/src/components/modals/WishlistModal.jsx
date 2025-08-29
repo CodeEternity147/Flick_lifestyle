@@ -1,14 +1,15 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Trash2, ShoppingCart, Heart, Sparkles } from 'lucide-react';
+import { X, Trash2, ShoppingCart, Heart, Sparkles, Eye } from 'lucide-react';
 import { closeWishlistModal } from '../../store/slices/uiSlice';
 import { removeFromWishlist } from '../../store/slices/wishlistSlice';
 import { addToCart } from '../../store/slices/cartSlice';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const WishlistModal = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { wishlistModalOpen } = useSelector((state) => state.ui);
   const { items, loading, error } = useSelector((state) => state.wishlist);
 
@@ -25,6 +26,14 @@ const WishlistModal = () => {
 
   const handleAddToCart = async (product) => {
     try {
+      // Check if this is a bundle product that requires customization
+      if (product.hasBundleItems) {
+        toast.info('This product requires customization. Redirecting to product page...');
+        navigate(`/product/${product._id}`);
+        dispatch(closeWishlistModal());
+        return;
+      }
+      
       const result = await dispatch(addToCart({
         productId: product._id,
         quantity: 1
@@ -153,15 +162,27 @@ const WishlistModal = () => {
                         <p className="text-sm text-gray-600">₹{item.product.price}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleAddToCart(item.product)}
-                          className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300"
-                          title="Add to cart"
-                        >
-                          <ShoppingCart size={16} />
-                        </motion.button>
+                        {/* Product Actions */}
+                        <div className="flex items-center space-x-2">
+                          {item.product.hasBundleItems ? (
+                            <Link
+                              to={`/product/${item.product._id}`}
+                              onClick={() => dispatch(closeWishlistModal())}
+                              className="flex-1 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 hover:from-purple-700 hover:via-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:-translate-y-0.5"
+                            >
+                              <Eye size={18} className="animate-pulse" />
+                              <span>View Product</span>
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => handleAddToCart(item.product)}
+                              className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5"
+                            >
+                              <ShoppingCart size={18} />
+                              <span>Add to Cart</span>
+                            </button>
+                          )}
+                        </div>
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}

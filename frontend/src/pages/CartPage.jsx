@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingCart, Sparkles } from 'lucide-react';
 import { fetchCart, updateCartItem, removeFromCart, applyCoupon, removeCoupon } from '../store/slices/cartSlice';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
 const CartPage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState('');

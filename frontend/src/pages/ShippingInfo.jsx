@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Truck, Clock, MapPin, Package, CheckCircle, AlertTriangle, Star, Mail, Phone } from 'lucide-react';
+import useScrollToTop from '../hooks/useScrollToTop';
 
 const ShippingInfo = () => {
+  useScrollToTop();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

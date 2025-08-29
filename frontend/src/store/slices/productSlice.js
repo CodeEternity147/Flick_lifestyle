@@ -3,6 +3,15 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Simple in-memory cache for products
+const productCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to check if cache is valid
+const isCacheValid = (timestamp) => {
+  return Date.now() - timestamp < CACHE_DURATION;
+};
+
 const initialState = {
   products: [],
   featuredProducts: [],
@@ -67,7 +76,22 @@ export const fetchProductById = createAsyncThunk(
   'products/fetchProductById',
   async (productId, { rejectWithValue }) => {
     try {
+      // Check cache first
+      const cachedData = productCache.get(productId);
+      if (cachedData && isCacheValid(cachedData.timestamp)) {
+        console.log('📦 Using cached product data for:', productId);
+        return cachedData.data;
+      }
+
+      console.log('📦 Fetching fresh product data for:', productId);
       const response = await axios.get(`${API_URL}/products/${productId}`);
+      
+      // Cache the response
+      productCache.set(productId, {
+        data: response.data,
+        timestamp: Date.now()
+      });
+      
       return response.data;
     } catch (error) {
       // Silently handle network errors without logging to console
@@ -182,6 +206,17 @@ const productSlice = createSlice({
     },
     clearCurrentProduct: (state) => {
       state.currentProduct = null;
+    },
+    clearProductCache: () => {
+      // Clear the in-memory cache
+      productCache.clear();
+      console.log('📦 Product cache cleared');
+    },
+    clearProductFromCache: (state, action) => {
+      // Clear a specific product from cache
+      const productId = action.payload;
+      productCache.delete(productId);
+      console.log('📦 Product removed from cache:', productId);
     },
     setFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload };
@@ -312,6 +347,8 @@ const productSlice = createSlice({
 export const {
   clearError,
   clearCurrentProduct,
+  clearProductCache,
+  clearProductFromCache,
   setFilters,
   clearFilters,
   setCurrentPage,

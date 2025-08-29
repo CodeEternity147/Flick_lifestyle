@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Trash2, Sparkles } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
+import { Heart, ShoppingCart, Trash2, Sparkles, Eye } from 'lucide-react';
 import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import toast from 'react-hot-toast';
 
 const WishlistPage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.wishlist);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchWishlist());
@@ -39,6 +42,13 @@ const WishlistPage = () => {
 
   const handleAddToCart = async (product) => {
     try {
+      // Check if this is a bundle product that requires customization
+      if (product.hasBundleItems) {
+        toast.info('This product requires customization. Redirecting to product page...');
+        navigate(`/product/${product._id}`);
+        return;
+      }
+      
       const result = await dispatch(addToCart({
         productId: product._id,
         quantity: 1
@@ -136,12 +146,26 @@ const WishlistPage = () => {
                   
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-black text-purple-600">₹{item.product.price}</span>
-                    <button
-                      onClick={() => handleAddToCart(item.product)}
-                      className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
-                    >
-                      <ShoppingCart size={18} />
-                    </button>
+                    {/* Product Actions */}
+                    <div className="flex items-center space-x-2">
+                      {item.product.hasBundleItems ? (
+                        <Link
+                          to={`/product/${item.product._id}`}
+                          className="flex-1 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 hover:from-purple-700 hover:via-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 transform hover:-translate-y-0.5"
+                        >
+                          <Eye size={18} className="animate-pulse" />
+                          <span>View Product</span>
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => handleAddToCart(item.product)}
+                          className="flex-1 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5"
+                        >
+                          <ShoppingCart size={18} />
+                          <span>Add to Cart</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

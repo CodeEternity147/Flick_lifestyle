@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, Database, Users, Mail, Phone } from 'lucide-react';
+import useScrollToTop from '../hooks/useScrollToTop';
 
 const PrivacyPolicy = () => {
+  useScrollToTop();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

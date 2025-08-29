@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { User, Mail, Phone, MapPin, Settings, Key, Sparkles } from 'lucide-react';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { updateProfile } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
+  useScrollToTop();
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state) => state.auth);
   

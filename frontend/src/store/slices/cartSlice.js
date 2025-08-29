@@ -55,15 +55,28 @@ export const addToCart = createAsyncThunk(
       const response = await axios.post(`${API_URL}/cart`, cartData, config);
       return response.data;
     } catch (error) {
-      // Handle validation errors specifically
-      if (error.response?.status === 400 && error.response?.data?.message === 'Validation failed') {
-        const validationErrors = error.response.data.errors;
-        if (validationErrors && validationErrors.length > 0) {
-          const errorMessages = validationErrors.map(err => `${err.param}: ${err.msg}`).join(', ');
-          return rejectWithValue(`Validation failed: ${errorMessages}`);
-        } else {
-          return rejectWithValue('Validation failed: Invalid data provided');
+      // Handle bundle product validation errors specifically
+      if (error.response?.status === 400) {
+        const errorMessage = error.response?.data?.message;
+        
+        // Check if this is a bundle validation error
+        if (errorMessage && errorMessage.includes('Please select exactly')) {
+          return rejectWithValue('This product requires customization. Please visit the product page to select your preferred items before adding to cart.');
         }
+        
+        // Handle other validation errors
+        if (errorMessage === 'Validation failed') {
+          const validationErrors = error.response.data.errors;
+          if (validationErrors && validationErrors.length > 0) {
+            const errorMessages = validationErrors.map(err => `${err.param}: ${err.msg}`).join(', ');
+            return rejectWithValue(`Validation failed: ${errorMessages}`);
+          } else {
+            return rejectWithValue('Validation failed: Invalid data provided');
+          }
+        }
+        
+        // Return the specific error message from the server
+        return rejectWithValue(errorMessage || 'Failed to add item to cart');
       }
       
       return rejectWithValue(

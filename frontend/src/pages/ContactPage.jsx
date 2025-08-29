@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { 
   Mail, 
   Phone, 
@@ -13,6 +14,7 @@ import {
 import toast from 'react-hot-toast';
 
 const ContactPage = () => {
+  useScrollToTop();
   const [formData, setFormData] = useState({
     name: '',
     email: '',

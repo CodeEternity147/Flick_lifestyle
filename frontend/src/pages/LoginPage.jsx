@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { login, clearError } from '../store/slices/authSlice';
 import toast from 'react-hot-toast';
 
 const LoginPage = () => {
+  useScrollToTop();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();

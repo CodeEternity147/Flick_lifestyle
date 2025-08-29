@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { CreditCard, MapPin, Truck } from 'lucide-react';
 import { fetchCart, applyCoupon, removeCoupon } from '../store/slices/cartSlice';
 import toast from 'react-hot-toast';
 
 const CheckoutPage = () => {
+  useScrollToTop();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   

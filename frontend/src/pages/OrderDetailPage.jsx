@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import useScrollToTop from '../hooks/useScrollToTop';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { 
@@ -10,6 +11,7 @@ import {
 import { fetchOrderById } from '../store/slices/orderSlice';
 
 const OrderDetailPage = () => {
+  useScrollToTop();
   const { id } = useParams();
   const dispatch = useDispatch();
   const { currentOrder, loading } = useSelector((state) => state.orders);
